@@ -6,7 +6,7 @@ function routes(app)
 {
     app.use('/auth', loginRouter);
     app.use('/messages', auth, userController);
-    // app.use('/', auth)
+    app.use('/', auth, userController)
 }
 
 module.exports = routes;
