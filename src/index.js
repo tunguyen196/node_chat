@@ -1,11 +1,12 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") }); //config env
 var exphbs = require("express-handlebars"); //template
 const db = require("./config/db"); // connect database
 const routes = require("./routes");
+const port = process.env.PORT || 3000;
 
 const cookieParser = require("cookie-parser"); //parser cookie
 app.use(cookieParser());
