@@ -1,0 +1,135 @@
+<style>
+    body {
+        overflow: unset;
+    }
+
+    .friend {
+        background: #e4e6eb;
+        padding: 4px 13px;
+        border-radius: 15px;
+        color: #000;
+    }
+
+    .your-self {
+        background: rgb(0, 132, 255);
+        padding: 4px 13px;
+        border-radius: 15px;
+        color: #ffffff;
+    }
+
+    .time {
+        font-size: 60%;
+    }
+
+    .card {
+        height: calc(100vh - 110px);
+    }
+
+    .card-body {
+        overflow-x: auto;
+    }
+
+    .card-footer {
+        position: fixed;
+        bottom: 0;
+        width: inherit;
+        background: #ffffff;
+        margin-left: -1px;
+    }
+
+    p {
+        margin-bottom: 0px !important;
+    }
+
+    @media only screen and (max-width: 600px) {
+        .card {
+            width: 100% !important;
+        }
+    }
+</style>
+<div class="card border-secondary mb-3 m-auto m-0" style="width: 600px">
+    <div class=" card-header bg-primary text-white">=))</div>
+    <div class="card-body text-secondary" id="messages">
+        {{#each messages}}
+        {{{showMessages ../user._id this }}}
+        {{/each}}
+    </div>
+    <div class="card-footer" style="">
+
+        <form action="" class="frmChat">
+            <input type="text" name="message" class="form-control d-inline" style="width: calc(100% - 30px) !important;border-radius: 15px;
+" placeholder="Aa">
+            <a href="javascript:void(0)" aria-disabled="true">
+                <i class="fa fa-paper-plane" style="font-size: 25px;" aria-hidden="true"></i>
+            </a>
+        </form>
+
+    </div>
+</div>
+
+<script src="/socket/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    socket.on('message', server => {
+        const userId = '{{ _user._id }}';
+        if (userId != server._id) {
+            let chat = '<div class="text-left  mb-2">' +
+                `<p class="mb-1">${server.name}</p>` +
+                `<p class="friend">${server.message}</p>` +
+                `<p class="pl-2 pt-2 time"> ${server.time}</p>` +
+                '</div>';
+            $('.card-body').append(chat);
+            scrollToBottom();
+        }
+    });
+
+
+    $('.frmChat').submit(e => {
+        e.preventDefault();
+        let message = $('input[name=message]').val();
+        if (message.length > 0) {
+            let chat = '<div class="text-right mb-2">' +
+                ' <p class="your-self">' +
+                message
+            '</p>'
+            '</div>';
+
+            $('.card-body').append(chat);
+            socket.emit('send', {
+                message: message,
+                _id: '{{ _user._id }}',
+                name: '{{ _user.name }}',
+            });
+            scrollToBottom();
+
+            $.ajax({
+                url: '/messages/store',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    content: message,
+                    users: '{{ _user._id }}',
+                },
+                success: function (data) {
+                    //console.log(data);
+                    //send
+                }
+            })
+        }
+        $('input[name=message]').val('')
+
+    })
+
+    $('.frmChat a').click(() => {
+        $('.frmChat').submit();
+    })
+
+    function scrollToBottom() {
+        const messages = document.getElementById('messages');
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    scrollToBottom();
+
+</script>
